@@ -56,30 +56,52 @@ function Scene() {
   const coreRef = useRef<THREE.Mesh>(null);
   const gridRef = useRef<any>(null);
   const groupRef = useRef<THREE.Group>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera>(null);
 
   useEffect(() => {
-    gsap.to(groupRef.current!.position, {
-      z: -5,
+    // Dramatic Camera Flight Path
+    gsap.to(state => state.camera.position, {
+      z: 2,
+      y: 2,
+      duration: 1,
       scrollTrigger: {
         trigger: 'body',
         start: 'top top',
         end: 'bottom bottom',
-        scrub: true,
+        scrub: 1,
+      }
+    });
+
+    // Rotation of the entire scene group
+    gsap.to(groupRef.current!.rotation, {
+      y: Math.PI * 2,
+      scrollTrigger: {
+        trigger: 'body',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1.5,
       }
     });
   }, []);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
+    
+    // Smooth camera lerp for mouse movement (optional but adds tech feel)
+    // state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, state.mouse.x * 2, 0.05);
+    // state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, state.mouse.y * 2 + 2, 0.05);
+    // state.camera.lookAt(0, 0, 0);
+
     if (coreRef.current) {
-      coreRef.current.rotation.z = time * 0.1;
-      coreRef.current.rotation.y = time * 0.2;
+      coreRef.current.rotation.z = time * 0.2;
+      coreRef.current.rotation.y = time * 0.3;
+      coreRef.current.scale.setScalar(1 + Math.sin(time * 0.5) * 0.1);
     }
   });
 
   return (
     <group ref={groupRef}>
-      <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={50} />
+      <PerspectiveCamera ref={cameraRef} makeDefault position={[0, 5, 12]} fov={50} />
       <Environment preset="city" />
       <ambientLight intensity={0.2} />
       <pointLight position={[10, 10, 10]} intensity={1} color="#00e5ff" />
@@ -87,33 +109,33 @@ function Scene() {
       <Grid
         ref={gridRef}
         infiniteGrid
-        fadeDistance={50}
+        fadeDistance={40}
         fadeStrength={5}
-        cellSize={1}
-        sectionSize={5}
+        cellSize={0.5}
+        sectionSize={2}
         sectionColor="#00e5ff"
-        cellColor="#111111"
-        position={[0, -5, 0]}
+        cellColor="#050505"
+        position={[0, -2, 0]}
       />
 
       <FloatingDataNodes />
 
-      <Float speed={3} rotationIntensity={2} floatIntensity={2}>
+      <Float speed={4} rotationIntensity={1} floatIntensity={2}>
         <mesh ref={coreRef}>
-          <octahedronGeometry args={[2, 0]} />
+          <octahedronGeometry args={[2.5, 0]} />
           <MeshDistortMaterial
             color="#00e5ff"
-            speed={2}
-            distort={0.3}
+            speed={4}
+            distort={0.4}
             radius={1}
             emissive="#00e5ff"
-            emissiveIntensity={0.5}
+            emissiveIntensity={0.8}
             wireframe
           />
         </mesh>
       </Float>
 
-      <Sparkles count={200} scale={20} size={1} speed={0.3} color="#00e5ff" />
+      <Sparkles count={400} scale={25} size={1.5} speed={0.5} color="#00e5ff" />
     </group>
   );
 }

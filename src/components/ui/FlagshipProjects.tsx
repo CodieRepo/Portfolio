@@ -38,36 +38,57 @@ export function FlagshipProjects() {
   const triggerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const pin = gsap.fromTo(
-      sectionRef.current,
-      { translateX: 0 },
-      {
-        translateX: "-200vw",
-        ease: "none",
-        duration: 1,
-        scrollTrigger: {
-          trigger: triggerRef.current,
-          start: "top top",
-          end: "2000 top",
-          scrub: 0.6,
-          pin: true,
-          anticipatePin: 1,
-        },
-      }
-    );
-    return () => {
-      pin.kill();
-    };
+    const ctx = gsap.context(() => {
+      const pin = gsap.fromTo(
+        sectionRef.current,
+        { translateX: 0 },
+        {
+          translateX: "-200vw",
+          ease: "none",
+          scrollTrigger: {
+            trigger: triggerRef.current,
+            start: "top top",
+            end: "+=2000",
+            scrub: 1.2,
+            pin: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        }
+      );
+
+      // Title animation for each project
+      gsap.utils.toArray('.project-card').forEach((card: any) => {
+        gsap.from(card.querySelector('.project-title'), {
+          scrollTrigger: {
+            trigger: card,
+            containerAnimation: pin,
+            start: 'left center',
+            toggleActions: 'play none none reverse',
+          },
+          y: 50,
+          opacity: 0,
+          duration: 1,
+          ease: 'power3.out',
+        });
+      });
+    }, triggerRef);
+    
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section id="projects" className="overflow-hidden bg-black">
-      <div ref={triggerRef}>
+    <section id="projects" className="bg-black">
+      <div ref={triggerRef} className="overflow-hidden">
         <div ref={sectionRef} className="h-screen w-[300vw] flex flex-row relative">
           {caseStudies.map((study) => (
-            <div key={study.id} className="h-screen w-screen flex justify-center items-center p-6 md:p-24">
-              <div className="relative w-full h-full border border-white/10 flex flex-col md:flex-row overflow-hidden group">
-                <div className="w-full md:w-1/2 h-1/2 md:h-full relative overflow-hidden">
+            <div key={study.id} className="project-card h-screen w-screen flex justify-center items-center p-6 md:p-24 relative">
+              <div className="absolute top-12 left-12 md:left-24 text-[10px] font-mono text-cyan-400 tracking-[0.5em] uppercase z-20">
+                // Case Study {study.id}
+              </div>
+
+              <div className="relative w-full h-full max-w-7xl flex flex-col md:flex-row overflow-hidden bg-[#050505] border border-white/5 group shadow-2xl">
+                <div className="w-full md:w-3/5 h-1/2 md:h-full relative overflow-hidden">
                   <div 
                     className="absolute inset-0 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-1000 scale-110 group-hover:scale-100"
                     style={{ backgroundImage: `url(${study.image})` }}
@@ -75,31 +96,31 @@ export function FlagshipProjects() {
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/10 transition-colors duration-700" />
                 </div>
                 
-                <div className="w-full md:w-1/2 h-1/2 md:h-full p-12 flex flex-col justify-between bg-[#050505]">
-                  <div>
-                    <span className="text-cyan-400 font-mono text-xs tracking-widest uppercase mb-4 block">
-                      // Case Study {study.id}
-                    </span>
-                    <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none mb-6">
+                <div className="w-full md:w-2/5 h-1/2 md:h-full p-8 md:p-16 flex flex-col justify-between border-l border-white/5">
+                  <div className="project-title">
+                    <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter leading-[0.9] mb-8">
                       {study.title}
                     </h2>
-                    <p className="text-xl text-neutral-400 uppercase font-light max-w-md">
+                    <p className="text-sm md:text-lg text-neutral-500 uppercase font-light leading-relaxed mb-8">
                       {study.tagline}
                     </p>
+                    <div className="flex flex-col gap-6">
+                      <div className="space-y-1">
+                        <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-widest">Role</span>
+                        <div className="text-xs uppercase font-medium text-neutral-300">{study.role}</div>
+                      </div>
+                    </div>
                   </div>
                   
-                  <div className="space-y-8">
-                    <div className="flex flex-col gap-2">
-                      <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest">Role</span>
-                      <span className="text-lg uppercase font-bold">{study.role}</span>
-                    </div>
-                    <button className="px-8 py-4 border border-white/10 hover:border-cyan-400 hover:text-cyan-400 transition-all duration-300 text-xs font-mono uppercase tracking-widest w-fit">
+                  <div className="flex flex-col gap-4">
+                    <button className="px-8 py-4 bg-white text-black hover:bg-cyan-400 transition-colors duration-500 text-xs font-bold uppercase tracking-[0.2em] w-fit">
                       View System Details
                     </button>
+                    <span className="text-[9px] font-mono text-neutral-700 uppercase tracking-widest">Available to explore ↗</span>
                   </div>
                 </div>
 
-                <div className="absolute top-12 right-12 text-[15vw] font-black text-white/5 pointer-events-none select-none">
+                <div className="absolute bottom-0 right-0 text-[30vw] font-black text-white/[0.02] pointer-events-none select-none leading-none -mb-[5vw] -mr-[5vw]">
                   {study.id}
                 </div>
               </div>

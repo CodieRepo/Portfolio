@@ -26,6 +26,7 @@ export default function Home() {
     <div className="bg-black text-white relative min-h-screen selection:bg-cyan-400 selection:text-black">
       <SystemBootPreloader />
       <CustomCursor />
+      
       {/* 3D Background */}
       <SpatialCanvas />
 
@@ -61,25 +62,40 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="relative z-10">
-        <section id="hero">
+        <div id="hero">
           <PersonalHero />
-        </section>
+        </div>
 
         <AboutMindset />
-        <FlagshipProjects />
-        <EngineeringProcess />
-        <InteractiveTechStack />
-        <ExperienceTimeline />
-        <SpatialCommandCenter />
+        
+        <div id="projects">
+          <FlagshipProjects />
+        </div>
+
+        <div id="process">
+          <EngineeringProcess />
+        </div>
+
+        <div id="tech">
+          <InteractiveTechStack />
+        </div>
+
+        <div id="credentials">
+          <ExperienceTimeline />
+        </div>
+
+        <div id="contact">
+          <SpatialCommandCenter />
+        </div>
       </main>
 
       {/* Footer */}
-      <footer className="py-20 px-6 border-t border-white/10 bg-black text-center relative z-10">
+      <footer className="py-20 px-6 border-t border-white/5 bg-black text-center relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col items-center gap-8">
-          <div className="text-4xl md:text-6xl font-black uppercase tracking-tighter">
+          <div className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-neutral-800">
             Let's Build the Future.
           </div>
-          <div className="flex flex-col md:flex-row gap-8 text-[10px] font-mono text-neutral-500 uppercase tracking-widest">
+          <div className="flex flex-col md:flex-row gap-8 text-[10px] font-mono text-neutral-600 uppercase tracking-widest">
             <span>Satwik Pal © 2026</span>
             <span className="hidden md:inline">•</span>
             <span>Founder @ Trinetra Digital Solution</span>
