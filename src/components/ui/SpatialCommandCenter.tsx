@@ -1,95 +1,84 @@
 'use client';
 
-import React, { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { useMagnetic } from '@/hooks/useMagnetic';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 
 export function SpatialCommandCenter() {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-
-  const emailRef = useRef<HTMLAnchorElement>(null);
-  const { x: emailX, y: emailY } = useMagnetic(emailRef, 80, 0.4);
-
-  const linkedinRef = useRef<HTMLAnchorElement>(null);
-  const { x: linkedinX, y: linkedinY } = useMagnetic(linkedinRef, 80, 0.4);
-
-  const phoneRef = useRef<HTMLAnchorElement>(null);
-  const { x: phoneX, y: phoneY } = useMagnetic(phoneRef, 80, 0.4);
+  const [formState, setFormState] = useState({ name: '', email: '', message: '' });
 
   return (
-    <section
-      ref={ref}
-      id="contact"
-      className="py-36 px-6 md:px-12 lg:px-24 bg-black text-white relative z-10 border-b border-white/10"
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] as const }}
-        className="max-w-7xl mx-auto flex flex-col items-center text-center"
-      >
-        <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest block mb-6">
-          [ 06 // COMMAND CENTER & CONSULTATION ]
-        </span>
+    <section id="contact" className="min-h-screen py-32 px-6 bg-black flex items-center justify-center relative overflow-hidden">
+      <div className="absolute inset-0 grid grid-cols-[repeat(20,minmax(0,1fr))] grid-rows-[repeat(20,minmax(0,1fr))] opacity-[0.03] pointer-events-none">
+        {Array.from({ length: 400 }).map((_, i) => (
+          <div key={i} className="border-[0.5px] border-white" />
+        ))}
+      </div>
 
-        <h2
-          className="text-5xl sm:text-7xl md:text-9xl font-black uppercase tracking-tighter mb-8 hover:text-neutral-300 transition-colors cursor-pointer select-none"
-          data-cursor="pointer"
-        >
-          LET'S BUILD
-        </h2>
-
-        <p className="max-w-xl text-xs md:text-sm font-mono text-neutral-400 uppercase leading-relaxed mb-12">
-          Ready to engineer your next AI automation pipeline, high-throughput backend, or kinetic web system? Book a system consultation or reach out directly.
-        </p>
-
-        {/* Diagnostic Command Line Widget */}
-        <div className="w-full max-w-2xl bg-neutral-950 border border-white/10 p-6 text-left font-mono text-xs mb-12 rounded-none">
-          <div className="flex items-center gap-2 text-neutral-500 pb-3 border-b border-white/10 mb-4 text-[10px]">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
-            <span>SATWIK_PAL // SYSTEM_TERMINAL</span>
+      <div className="max-w-4xl w-full relative z-10">
+        <div className="border border-cyan-400/30 bg-black p-8 md:p-16 shadow-[0_0_50px_rgba(0,229,255,0.1)]">
+          <div className="flex justify-between items-center mb-12">
+            <div>
+              <span className="text-cyan-400 font-mono text-[10px] tracking-widest uppercase mb-2 block">// Establish Connection</span>
+              <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">Contact.</h2>
+            </div>
+            <div className="hidden md:block text-right">
+              <div className="text-[10px] font-mono text-neutral-500 uppercase">System Status</div>
+              <div className="text-cyan-400 text-xs font-mono flex items-center gap-2 justify-end">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                ONLINE
+              </div>
+            </div>
           </div>
-          <p className="text-cyan-400 mb-2">$ init consultation --founder="Satwik Pal"</p>
-          <p className="text-neutral-400 mb-2">↳ STATUS: ACCEPTING HIGH-SCALE PROJECTS & CONTRACTS</p>
-          <p className="text-neutral-500">↳ LOCATION: Gorakhpur, UP, India // Remote Worldwide</p>
+
+          <form className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest">Identification</label>
+                <input 
+                  type="text" 
+                  placeholder="NAME / ORGANIZATION"
+                  className="w-full bg-neutral-900/50 border border-white/10 p-4 text-sm font-mono focus:border-cyan-400 outline-none transition-colors"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest">Communication Channel</label>
+                <input 
+                  type="email" 
+                  placeholder="EMAIL_ADDRESS"
+                  className="w-full bg-neutral-900/50 border border-white/10 p-4 text-sm font-mono focus:border-cyan-400 outline-none transition-colors"
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest">Transmission Payload</label>
+              <textarea 
+                rows={4}
+                placeholder="PROJECT_REQUIREMENTS // SYSTEM_CONSULTATION"
+                className="w-full bg-neutral-900/50 border border-white/10 p-4 text-sm font-mono focus:border-cyan-400 outline-none transition-colors resize-none"
+              />
+            </div>
+
+            <button className="w-full py-6 bg-cyan-400 text-black font-black uppercase tracking-[0.2em] text-sm hover:bg-white transition-colors duration-300">
+              Initiate Transmission
+            </button>
+          </form>
+
+          <div className="mt-16 pt-8 border-t border-white/10 grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div>
+              <span className="text-[9px] font-mono text-neutral-500 uppercase block mb-2">Location</span>
+              <span className="text-[10px] font-mono uppercase">Global / Remote</span>
+            </div>
+            <div>
+              <span className="text-[9px] font-mono text-neutral-500 uppercase block mb-2">Social</span>
+              <span className="text-[10px] font-mono uppercase">LinkedIn / GitHub</span>
+            </div>
+            <div className="col-span-2 text-right flex flex-col justify-end">
+              <span className="text-[9px] font-mono text-neutral-600 uppercase">© 2026 SATWIK PAL SYSTEMS</span>
+            </div>
+          </div>
         </div>
-
-        {/* Magnetic Action Triggers */}
-        <div className="flex flex-col md:flex-row gap-6 items-center justify-center w-full max-w-3xl">
-          <motion.a
-            ref={emailRef}
-            style={{ x: emailX, y: emailY }}
-            href="mailto:satwikpal786@gmail.com"
-            className="w-full md:w-auto px-8 py-4 bg-white text-black font-bold font-mono uppercase text-xs tracking-widest hover:bg-neutral-200 transition-colors cursor-pointer select-none"
-            data-cursor="pointer"
-          >
-            satwikpal786@gmail.com
-          </motion.a>
-
-          <motion.a
-            ref={linkedinRef}
-            style={{ x: linkedinX, y: linkedinY }}
-            href="https://linkedin.com/in/satwik-pal-129374189"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full md:w-auto px-8 py-4 border border-white/20 font-mono uppercase text-xs tracking-widest hover:border-cyan-400 hover:bg-cyan-400 hover:text-black transition-colors cursor-pointer select-none bg-black"
-            data-cursor="pointer"
-          >
-            LinkedIn ↗
-          </motion.a>
-
-          <motion.a
-            ref={phoneRef}
-            style={{ x: phoneX, y: phoneY }}
-            href="tel:+917388625622"
-            className="w-full md:w-auto px-8 py-4 border border-white/20 font-mono uppercase text-xs tracking-widest hover:border-cyan-400 hover:bg-cyan-400 hover:text-black transition-colors cursor-pointer select-none bg-black"
-            data-cursor="pointer"
-          >
-            +91 7388625622
-          </motion.a>
-        </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

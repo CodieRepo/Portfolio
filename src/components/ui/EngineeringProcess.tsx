@@ -1,72 +1,75 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
+
+const steps = [
+  {
+    num: '01',
+    title: 'Architectural Blueprinting',
+    desc: 'Deep analysis of business requirements followed by high-level system design and technology stack selection.'
+  },
+  {
+    num: '02',
+    title: 'Core Engine Development',
+    desc: 'Building robust, scalable backend microservices and intelligent API gateways for real-time data processing.'
+  },
+  {
+    num: '03',
+    title: 'AI Workflow Integration',
+    desc: 'Orchestrating LLMs and NLP agents to automate complex decision-making processes and customer interactions.'
+  },
+  {
+    num: '04',
+    title: 'Performance Hardening',
+    desc: 'Rigorous testing, latency optimization, and system stress testing to ensure production-grade reliability.'
+  }
+];
 
 export function EngineeringProcess() {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-
-  const steps = [
-    {
-      step: 'STEP 01',
-      title: 'Workflow Framing',
-      desc: 'Analyzing client bottlenecks, mapping data flows, and defining system primitives before writing a single line of code.',
-    },
-    {
-      step: 'STEP 02',
-      title: 'Backend & DB Blueprint',
-      desc: 'Designing relational database schemas (PostgreSQL), RESTful microservices (Spring Boot/Node.js), and security controllers.',
-    },
-    {
-      step: 'STEP 03',
-      title: 'Kinetic Client UI',
-      desc: 'Building responsive frontends in Next.js, React, and Tailwind CSS driven by Framer Motion spring physics and Lenis scroll controls.',
-    },
-    {
-      step: 'STEP 04',
-      title: 'Automated CI/CD Deployment',
-      desc: 'Performing rigorous Postman API validation, SQL query tuning, and deployment testing to guarantee 99.9% uptime.',
-    },
-  ];
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
 
   return (
-    <section
-      ref={ref}
+    <section 
       id="process"
-      className="py-32 px-6 md:px-12 lg:px-24 border-b border-white/10 bg-black/80 text-white relative z-10"
+      ref={containerRef}
+      className="py-32 px-6 bg-white text-black overflow-hidden"
     >
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col gap-4 border-b border-white/10 pb-12 mb-16">
-          <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest block">
-            [ 04 // ENGINEERING METHODOLOGY ]
-          </span>
-          <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tight leading-none">
-            How I Build Systems
+        <div className="flex flex-col md:flex-row justify-between items-end gap-12 mb-24">
+          <h2 className="text-6xl md:text-[10rem] font-black uppercase tracking-tighter leading-none">
+            Process.
           </h2>
+          <div className="max-w-md text-right">
+            <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-neutral-500 mb-4 block">
+              // Engineering Methodology
+            </span>
+            <p className="text-xl font-light uppercase">
+              A systematic approach to building high-scale digital infrastructure.
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {steps.map((s, idx) => (
-            <motion.div
-              key={s.step}
-              initial={{ opacity: 0, y: 30 }}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-neutral-200 border border-neutral-200">
+          {steps.map((step, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] as const, delay: idx * 0.1 }}
-              className="border border-white/10 p-8 bg-neutral-950/40 relative flex flex-col justify-between min-h-[260px]"
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="bg-white p-12 flex flex-col justify-between aspect-square group hover:bg-black hover:text-white transition-colors duration-500"
             >
-              <div className="text-xs font-mono text-cyan-400 mb-4">{s.step}</div>
-              <div>
-                <h3 className="text-xl font-bold uppercase tracking-tight mb-3 text-white">
-                  {s.title}
-                </h3>
-                <p className="text-xs font-mono text-neutral-400 leading-relaxed">
-                  {s.desc}
+              <div className="text-4xl font-black font-mono">{step.num}</div>
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold uppercase">{step.title}</h3>
+                <p className="text-sm text-neutral-500 group-hover:text-neutral-400 transition-colors uppercase leading-relaxed">
+                  {step.desc}
                 </p>
-              </div>
-              <div className="text-[9px] font-mono text-neutral-600 uppercase mt-6 pt-4 border-t border-white/5">
-                SATWIK PAL // STAGE {idx + 1}
               </div>
             </motion.div>
           ))}

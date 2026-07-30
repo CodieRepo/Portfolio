@@ -1,113 +1,86 @@
 'use client';
 
-import React, { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import React, { useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { gsap } from 'gsap';
 
 export function AboutMindset() {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"]
+  });
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.1 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 30, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] as const },
-    },
-  };
-
-  const pillars = [
-    {
-      num: '01',
-      title: 'Mechanical Precision',
-      desc: 'My background in mechanical production engineering gives me a physical understanding of pipeline tolerances, structural stress, and load limits—principles I apply directly to software systems.',
-    },
-    {
-      num: '02',
-      title: 'Multi-Tier Microservices',
-      desc: 'Architecting rock-solid backend services using Java, Spring Boot, Node.js, and optimized SQL schemas that handle high-throughput workloads with sub-50ms latency.',
-    },
-    {
-      num: '03',
-      title: 'AI & Process Automation',
-      desc: 'Engineering automated lead workflows, WhatsApp API bots, custom CRM engines, and AI video avatars that turn manual business tasks into autonomous revenue loops.',
-    },
-    {
-      num: '04',
-      title: 'Kinetic Web Systems',
-      desc: 'Crafting responsive, high-converting client UIs in React, Next.js, and WebGL driven by Framer Motion spring physics and Lenis smooth scrolling.',
-    },
-  ];
+  const x1 = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  const x2 = useTransform(scrollYProgress, [0, 1], [0, 200]);
 
   return (
-    <section
-      ref={ref}
+    <section 
       id="about"
-      className="py-32 px-6 md:px-12 lg:px-24 border-b border-white/10 bg-black/60 backdrop-blur-md text-white relative z-10"
+      ref={sectionRef}
+      className="relative min-h-screen py-32 px-6 overflow-hidden bg-black"
     >
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate={isInView ? 'visible' : 'hidden'}
-        className="max-w-7xl mx-auto"
-      >
-        {/* Section Header */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 border-b border-white/10 pb-12 mb-16 items-end">
-          <div className="lg:col-span-4 flex flex-col gap-4">
-            <motion.span
-              variants={itemVariants}
-              className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest block"
-            >
-              [ 02 // WHO I AM & HOW I THINK ]
-            </motion.span>
-            <motion.h2
-              variants={itemVariants}
-              className="text-3xl md:text-5xl font-bold uppercase tracking-tight leading-none"
-            >
-              Engineering Rigor,<br />Digital Intelligence
-            </motion.h2>
-          </div>
-          <motion.div variants={itemVariants} className="lg:col-span-8">
-            <p className="text-lg md:text-2xl font-light leading-relaxed text-neutral-300 uppercase tracking-tight">
-              "Engineering physical machines taught me structure, math, and tolerance. Engineering digital systems taught me full-stack fluidity, database normalization, and automated intelligence."
+      <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-cyan-500 rounded-full blur-[150px]" />
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-blue-600 rounded-full blur-[150px]" />
+      </div>
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        <motion.div 
+          style={{ x: x1 }}
+          className="text-[10vw] font-black text-white/5 whitespace-nowrap uppercase mb-[-5vw] select-none"
+        >
+          Engineering Mindset • Engineering Mindset
+        </motion.div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          <div className="space-y-8">
+            <h2 className="text-4xl md:text-6xl font-black uppercase leading-none">
+              Building <span className="text-cyan-400">Intelligent</span> Systems.
+            </h2>
+            <p className="text-xl text-neutral-400 font-light leading-relaxed">
+              I specialize in bridging the gap between complex business logic and high-performance digital solutions. My approach combines rigorous backend architecture with fluid, interactive frontend experiences.
             </p>
-          </motion.div>
+            <div className="grid grid-cols-2 gap-8 pt-8">
+              <div>
+                <h4 className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-2">// Vision</h4>
+                <p className="text-neutral-500 text-sm uppercase">To automate the mundane and elevate human potential through AI.</p>
+              </div>
+              <div>
+                <h4 className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-2">// Strategy</h4>
+                <p className="text-neutral-500 text-sm uppercase">Scalable microservices meet intuitive, data-driven interfaces.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="aspect-square border border-white/10 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="absolute inset-8 border border-cyan-400/20 flex flex-col justify-between p-6">
+                <div className="flex justify-between items-start">
+                  <div className="w-12 h-[1px] bg-cyan-400" />
+                  <div className="text-[10px] font-mono text-cyan-400">01001010 01100001</div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-4xl font-black text-white">3.5X</div>
+                  <div className="text-[10px] font-mono text-neutral-500 uppercase">Conversion Velocity Increase</div>
+                </div>
+                <div className="flex justify-between items-end">
+                  <div className="text-[10px] font-mono text-neutral-500 uppercase">System Integrity: 99.98%</div>
+                  <div className="w-12 h-[1px] bg-cyan-400" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* 4 Engineering Pillars Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {pillars.map((p) => (
-            <motion.div
-              key={p.num}
-              variants={itemVariants}
-              className="border border-white/10 p-6 md:p-8 bg-neutral-950/40 flex flex-col justify-between min-h-[280px] hover:border-cyan-400/50 transition-colors duration-500 group"
-            >
-              <div>
-                <span className="text-xs font-mono text-cyan-400 group-hover:text-white transition-colors">
-                  [{p.num}]
-                </span>
-                <h3 className="text-lg font-bold uppercase tracking-tight mt-3 mb-4 text-white">
-                  {p.title}
-                </h3>
-                <p className="text-xs font-mono text-neutral-400 leading-relaxed">
-                  {p.desc}
-                </p>
-              </div>
-              <div className="text-[9px] font-mono text-neutral-600 uppercase tracking-widest mt-6 pt-4 border-t border-white/5">
-                SATWIK PAL // CORE PILLAR
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
+        <motion.div 
+          style={{ x: x2 }}
+          className="text-[10vw] font-black text-white/5 whitespace-nowrap uppercase mt-[-2vw] select-none text-right"
+        >
+          AI Automation • Digital Solutions
+        </motion.div>
+      </div>
     </section>
   );
 }
