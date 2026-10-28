@@ -19,7 +19,7 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
-import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
+import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'motion/react';
 import { cn } from '@/lib/cn';
 import { webAudio } from '@/utils/WebAudioEngine';
 
@@ -159,6 +159,7 @@ export function PortfolioApp() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const dragBoundary = useRef<HTMLDivElement | null>(null);
+  const heroRef = useRef<HTMLElement | null>(null);
 
   const sections = useMemo(
     () => [
@@ -193,6 +194,20 @@ export function PortfolioApp() {
     if (score > 10) return '🚀';
     return '🙂';
   }, [form]);
+
+  const { scrollYProgress: heroProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end end'],
+  });
+
+  const heroSceneScale = useTransform(heroProgress, [0, 1], [1, 1.22]);
+  const heroSceneY = useTransform(heroProgress, [0, 1], [0, -150]);
+  const heroContentScale = useTransform(heroProgress, [0, 1], [1, 0.9]);
+  const heroContentY = useTransform(heroProgress, [0, 1], [0, -90]);
+  const avatarPanelScale = useTransform(heroProgress, [0, 1], [1, 1.3]);
+  const avatarPanelRotate = useTransform(heroProgress, [0, 1], [0, -5]);
+  const portalScale = useTransform(heroProgress, [0, 1], [0.85, 1.35]);
+  const portalOpacity = useTransform(heroProgress, [0, 0.8, 1], [0.45, 0.25, 0.05]);
 
   const playClick = () => soundOn && webAudio.playClickTone();
   const playHover = () => soundOn && webAudio.playHoverTone();
@@ -269,82 +284,135 @@ export function PortfolioApp() {
       </header>
 
       <main className="relative z-10 mx-auto w-full max-w-[1500px] px-4 py-8 md:px-8 md:py-12">
-        <section id="hero" className="grid gap-6 pb-12 pt-2 md:grid-cols-2 md:gap-8 md:pb-16">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
-            <div className="mb-4 flex flex-wrap gap-2">
-              {['Available for Q4/2026 Projects', 'Founder @ Trinetra', 'AI + Full-Stack', 'Gorakhpur, UP, India'].map((pill) => (
-                <span key={pill} className="neo-pill text-xs">
-                  {pill}
-                </span>
-              ))}
-            </div>
-
-            <h1 className="text-balance text-4xl font-black leading-[1.03] tracking-tight md:text-6xl xl:text-7xl">
-              Satwik Pal
-              <span className="block text-[var(--accent-lime)]">Creative Technologist</span>
-              <span className="block text-[var(--accent-cyan)]">&amp; Full Stack Developer | AI Automation Engineer</span>
-            </h1>
-
-            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--muted)] md:text-base">
-              Engineering physical machines taught me structure. Engineering digital systems taught me leverage. I build
-              high-scale, AI-driven kinetic web systems.
-            </p>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <NeoButton onClick={() => scrollTo('projects')} className="bg-[var(--accent-lime)] text-black">
-                Explore Projects 🎯
-              </NeoButton>
-              <NeoButton onClick={() => scrollTo('contact')} className="bg-[var(--accent-pink)] text-black">
-                Book Consultation ☕
-              </NeoButton>
-            </div>
-          </motion.div>
-
+        <section id="hero" ref={heroRef} className="relative min-h-[180vh] pb-12 pt-2 md:min-h-[190vh] md:pb-16">
           <motion.div
-            ref={dragBoundary}
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={spring}
-            className="neo-card relative min-h-[320px] overflow-hidden bg-[linear-gradient(140deg,var(--card),var(--card-2))]"
+            className="pointer-events-none absolute inset-0 -z-10"
+            style={{ scale: heroSceneScale, y: heroSceneY }}
+            aria-hidden
           >
-            <motion.div
-              className="absolute left-5 top-5 rounded-full border-2 border-[var(--line)] bg-[var(--accent-cyan)] px-3 py-1 text-xs font-bold text-black"
-              animate={{ y: [0, -6, 0] }}
-              transition={{ duration: 3.2, repeat: Number.POSITIVE_INFINITY }}
-            >
-              Hey, I&apos;m Satwik! 👾
-            </motion.div>
-            <motion.div
-              className="absolute right-5 top-16 rounded-full border-2 border-[var(--line)] bg-[var(--accent-pink)] px-3 py-1 text-xs font-bold text-black"
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 3.8, repeat: Number.POSITIVE_INFINITY }}
-            >
-              Scroll down to explore 🚀
-            </motion.div>
-
-            <div className="absolute inset-x-0 bottom-0 flex justify-center">
-              <div className="relative mb-4 h-52 w-52 rounded-full border-2 border-[var(--line)] bg-[radial-gradient(circle_at_30%_25%,#fff,transparent_40%),linear-gradient(160deg,#8B5CF6,#00F0FF)] shadow-[8px_8px_0px_var(--line)]">
-                <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">🧑‍💻</span>
-              </div>
-            </div>
-
-            {['AI Bots', 'Microservices', 'Kinetic UI'].map((sticker, idx) => (
-              <motion.div
-                key={sticker}
-                drag
-                dragConstraints={dragBoundary}
-                whileDrag={{ scale: 1.08 }}
-                className={cn(
-                  'absolute cursor-grab rounded-2xl border-2 border-[var(--line)] bg-[var(--accent-orange)] px-3 py-1 text-xs font-black text-black shadow-[4px_4px_0px_var(--line)] active:shadow-[2px_2px_0px_var(--line)]',
-                  idx === 0 && 'left-8 top-28',
-                  idx === 1 && 'right-8 top-40',
-                  idx === 2 && 'left-16 bottom-10'
-                )}
-              >
-                {sticker}
-              </motion.div>
-            ))}
+            <div className="absolute -left-12 top-14 h-56 w-56 rounded-full bg-[var(--accent-purple)]/25 blur-3xl" />
+            <div className="absolute right-10 top-12 h-72 w-72 rounded-full bg-[var(--accent-cyan)]/30 blur-3xl" />
+            <div className="absolute bottom-16 left-1/3 h-72 w-72 rounded-full bg-[var(--accent-pink)]/20 blur-3xl" />
           </motion.div>
+
+          <div className="sticky top-20 flex min-h-[calc(100vh-6rem)] items-center">
+            <motion.div style={{ scale: heroContentScale, y: heroContentY }} className="grid w-full gap-6 md:grid-cols-2 md:gap-8">
+              <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {['Available for Q4/2026 Projects', 'Founder @ Trinetra', 'AI + Full-Stack', 'Gorakhpur, UP, India'].map((pill) => (
+                    <span key={pill} className="neo-pill text-xs">
+                      {pill}
+                    </span>
+                  ))}
+                </div>
+
+                <h1 className="text-balance text-4xl font-black leading-[0.98] tracking-tight md:text-6xl xl:text-7xl">
+                  Satwik Pal
+                  <span className="block bg-gradient-to-r from-[var(--accent-lime)] to-[#f2ff9f] bg-clip-text text-transparent">
+                    Creative Technologist
+                  </span>
+                  <span className="block bg-gradient-to-r from-[var(--accent-cyan)] to-[#7ef7ff] bg-clip-text text-transparent">
+                    &amp; Full Stack Developer | AI Automation Engineer
+                  </span>
+                </h1>
+
+                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--muted)] md:text-base">
+                  Engineering physical machines taught me structure. Engineering digital systems taught me leverage. I build
+                  high-scale, AI-driven kinetic web systems.
+                </p>
+
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <NeoButton onClick={() => scrollTo('projects')} className="bg-[var(--accent-lime)] text-black">
+                    Explore Projects 🎯
+                  </NeoButton>
+                  <NeoButton onClick={() => scrollTo('contact')} className="bg-[var(--accent-pink)] text-black">
+                    Book Consultation ☕
+                  </NeoButton>
+                </div>
+
+                <motion.p
+                  className="mt-6 inline-flex rounded-full border-2 border-[var(--line)] bg-[var(--card)] px-3 py-1 text-xs font-black text-[var(--accent-cyan)]"
+                  animate={{ y: [0, -4, 0] }}
+                  transition={{ duration: 1.8, repeat: Number.POSITIVE_INFINITY }}
+                >
+                  ↓ Scroll to enter mission mode
+                </motion.p>
+              </motion.div>
+
+              <motion.div
+                ref={dragBoundary}
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={spring}
+                style={{ scale: avatarPanelScale, rotate: avatarPanelRotate }}
+                className="neo-card relative min-h-[360px] overflow-hidden bg-[linear-gradient(145deg,var(--card),var(--card-2))]"
+              >
+                <motion.div
+                  className="pointer-events-none absolute inset-0 rounded-[1.1rem] border-2 border-[var(--accent-cyan)]/40"
+                  style={{ scale: portalScale, opacity: portalOpacity }}
+                />
+                <motion.div
+                  className="pointer-events-none absolute inset-8 rounded-[1.1rem] border border-[var(--accent-lime)]/35"
+                  style={{ scale: portalScale, opacity: portalOpacity }}
+                />
+
+                <motion.div
+                  className="absolute left-5 top-5 rounded-full border-2 border-[var(--line)] bg-[var(--accent-cyan)] px-3 py-1 text-xs font-bold text-black"
+                  animate={{ y: [0, -6, 0] }}
+                  transition={{ duration: 3.2, repeat: Number.POSITIVE_INFINITY }}
+                >
+                  Hey, I&apos;m Satwik! 👾
+                </motion.div>
+                <motion.div
+                  className="absolute right-5 top-16 rounded-full border-2 border-[var(--line)] bg-[var(--accent-pink)] px-3 py-1 text-xs font-bold text-black"
+                  animate={{ y: [0, 8, 0] }}
+                  transition={{ duration: 3.8, repeat: Number.POSITIVE_INFINITY }}
+                >
+                  Scroll down to explore 🚀
+                </motion.div>
+
+                {[0, 1, 2, 3, 4].map((ring) => (
+                  <motion.div
+                    key={ring}
+                    className="pointer-events-none absolute left-1/2 top-1/2 rounded-full border border-white/20"
+                    style={{
+                      width: 80 + ring * 58,
+                      height: 80 + ring * 58,
+                      translateX: '-50%',
+                      translateY: '-50%',
+                    }}
+                    animate={{ scale: [1, 1.06, 1], opacity: [0.4, 0.15, 0.4] }}
+                    transition={{ duration: 2.4 + ring * 0.35, repeat: Number.POSITIVE_INFINITY }}
+                  />
+                ))}
+
+                <div className="absolute inset-x-0 bottom-0 flex justify-center">
+                  <div className="relative mb-4 h-52 w-52 rounded-full border-2 border-[var(--line)] bg-[radial-gradient(circle_at_30%_25%,#fff,transparent_40%),linear-gradient(160deg,#8B5CF6,#00F0FF)] shadow-[8px_8px_0px_var(--line)]">
+                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">🧑‍💻</span>
+                  </div>
+                </div>
+
+                {['AI Bots', 'Microservices', 'Kinetic UI'].map((sticker, idx) => (
+                  <motion.div
+                    key={sticker}
+                    drag
+                    dragConstraints={dragBoundary}
+                    whileDrag={{ scale: 1.08 }}
+                    className={cn(
+                      'absolute cursor-grab rounded-2xl border-2 border-[var(--line)] bg-[var(--accent-orange)] px-3 py-1 text-xs font-black text-black shadow-[4px_4px_0px_var(--line)] active:shadow-[2px_2px_0px_var(--line)]',
+                      idx === 0 && 'left-8 top-28',
+                      idx === 1 && 'right-8 top-40',
+                      idx === 2 && 'left-16 bottom-10'
+                    )}
+                    animate={{ y: [0, idx % 2 === 0 ? -8 : 8, 0] }}
+                    transition={{ duration: 3 + idx, repeat: Number.POSITIVE_INFINITY }}
+                  >
+                    {sticker}
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
+          </div>
         </section>
 
         <section className="neo-card mb-12 overflow-hidden px-0 py-3 md:mb-16" aria-label="Tech ticker">
