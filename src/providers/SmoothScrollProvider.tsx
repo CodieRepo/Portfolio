@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef } from 'react';
 import Lenis from 'lenis';
 
 interface SmoothScrollProviderProps {
@@ -10,24 +10,21 @@ interface SmoothScrollProviderProps {
 const SmoothScrollContext = createContext<Lenis | null>(null);
 
 export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
-  const [lenisInstance, setLenisInstance] = useState<Lenis | null>(null);
+  const lenisRef = useRef<Lenis | null>(null);
   const rafIdRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // Instantiate Lenis manually
     const lenis = new Lenis({
       duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // easeOutExpo
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
       wheelMultiplier: 1.0,
       touchMultiplier: 2.0,
     });
+    lenisRef.current = lenis;
 
-    setLenisInstance(lenis);
-
-    // Custom RAF loop to drive Lenis scrolling
     const raf = (time: number) => {
       lenis.raf(time);
       rafIdRef.current = requestAnimationFrame(raf);
@@ -35,20 +32,16 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
 
     rafIdRef.current = requestAnimationFrame(raf);
 
-    // Cleanup to prevent memory leaks on unmount
     return () => {
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
       }
+      lenisRef.current = null;
       lenis.destroy();
     };
   }, []);
 
-  return (
-    <SmoothScrollContext.Provider value={lenisInstance}>
-      {children}
-    </SmoothScrollContext.Provider>
-  );
+  return <SmoothScrollContext.Provider value={null}>{children}</SmoothScrollContext.Provider>;
 }
 
 export function useSmoothScroll() {

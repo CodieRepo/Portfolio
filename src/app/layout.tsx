@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Antigravity // Elite Kinetic Portfolio",
-  description: "A highly immersive, kinetic, and fluid professional portfolio engineered with Next.js 15, Framer Motion, and Lenis Scroll.",
+  title: 'Satwik Pal — Creative Technologist Portfolio',
+  description:
+    'Gen-Z Neo-Brutalist interactive developer portfolio of Satwik Pal, full stack developer and AI automation engineer.',
 };
 
 export default function RootLayout({
@@ -27,9 +28,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased bg-black select-none`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-black text-white relative">
+      <body className="min-h-full relative">
         <SmoothScrollProvider>
           <CustomCursor />
           {children}
