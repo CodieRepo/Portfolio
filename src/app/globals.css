@@ -217,6 +217,7 @@ html.lenis body {
   z-index: 0;
   perspective: 1200px;
   transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .tunnel-depth {
@@ -234,6 +235,7 @@ html.lenis body {
   border-radius: 9999px;
   border: 1px solid color-mix(in srgb, var(--accent-cyan) 44%, transparent);
   box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent-purple) 34%, transparent);
+  will-change: transform, opacity;
 }
 
 .tunnel-rail {
@@ -255,6 +257,13 @@ html.lenis body {
 
 .tunnel-content-layer {
   transform-style: preserve-3d;
+  will-change: transform;
+}
+
+@media (max-width: 768px) {
+  .tunnel-ring {
+    width: min(110vw, 780px);
+  }
 }
 
 .hero-word,

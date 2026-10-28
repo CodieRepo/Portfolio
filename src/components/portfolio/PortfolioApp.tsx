@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Command } from 'cmdk';
 import confetti from 'canvas-confetti';
 import { animate, createTimeline, stagger } from 'animejs';
+import Image from 'next/image';
 import {
   ArrowUpRight,
   AudioLines,
@@ -20,7 +21,7 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
-import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'motion/react';
+import { motion, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'motion/react';
 import { cn } from '@/lib/cn';
 import { webAudio } from '@/utils/WebAudioEngine';
 
@@ -97,6 +98,12 @@ const marqueeItems = [
   'GRAPH ALGORITHMS',
 ];
 
+const heroVariants = [
+  { label: 'Builder Mode', src: '/anime-tech-hero.svg' },
+  { label: 'Hacker Mode', src: '/anime-tech-hero-hacker.svg' },
+  { label: 'Neon Mode', src: '/anime-tech-hero-neon.svg' },
+] as const;
+
 function TiltCard({ className, children }: { className?: string; children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const x = useMotionValue(0);
@@ -159,6 +166,8 @@ export function PortfolioApp() {
   const [soundOn, setSoundOn] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [heroVariant, setHeroVariant] = useState(0);
+  const heroVariantRef = useRef(0);
   const dragBoundary = useRef<HTMLDivElement | null>(null);
   const heroRef = useRef<HTMLElement | null>(null);
   const tunnelRef = useRef<HTMLDivElement | null>(null);
@@ -215,6 +224,21 @@ export function PortfolioApp() {
   const tunnelScale = useTransform(pageProgress, [0, 1], [1, 1.35]);
   const tunnelRotate = useTransform(pageProgress, [0, 1], [0, 4]);
   const tunnelY = useTransform(pageProgress, [0, 1], [0, -280]);
+
+  useMotionValueEvent(heroProgress, 'change', (latest) => {
+    let next = 0;
+    if (latest < 0.33) {
+      next = 0;
+    } else if (latest < 0.66) {
+      next = 1;
+    } else {
+      next = 2;
+    }
+    if (heroVariantRef.current !== next) {
+      heroVariantRef.current = next;
+      setHeroVariant(next);
+    }
+  });
 
   useEffect(() => {
     const heroEnter = createTimeline({ defaults: { ease: 'outExpo', duration: 900 } });
@@ -325,7 +349,7 @@ export function PortfolioApp() {
         style={{ scale: tunnelScale, rotate: tunnelRotate, y: tunnelY }}
       >
         <div className="tunnel-depth">
-          {Array.from({ length: 14 }).map((_, idx) => (
+          {Array.from({ length: 10 }).map((_, idx) => (
             <div
               key={`ring-${idx}`}
               className="tunnel-ring"
@@ -492,9 +516,27 @@ export function PortfolioApp() {
                 ))}
 
                 <div className="absolute inset-x-0 bottom-0 flex justify-center">
-                  <div className="relative mb-4 h-52 w-52 rounded-[40%] border-2 border-[var(--line)] bg-[radial-gradient(circle_at_30%_25%,#fff,transparent_40%),linear-gradient(160deg,#8B5CF6,#00F0FF)] shadow-[8px_8px_0px_var(--line)]">
-                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">🤖</span>
-                  </div>
+                  <motion.div
+                    className="relative mb-2 h-[360px] w-[300px] md:h-[430px] md:w-[350px]"
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
+                  >
+                    <motion.span
+                      key={heroVariants[heroVariant].label}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="absolute -top-4 left-1/2 z-20 -translate-x-1/2 rounded-full border-2 border-[var(--line)] bg-[var(--accent-lime)] px-3 py-1 text-[11px] font-black text-black shadow-[4px_4px_0px_var(--line)]"
+                    >
+                      {heroVariants[heroVariant].label}
+                    </motion.span>
+                    <Image
+                      src={heroVariants[heroVariant].src}
+                      alt="Anime style tech character"
+                      fill
+                      priority
+                      className="object-contain drop-shadow-[12px_14px_0px_rgba(16,16,16,0.85)] transition-all duration-500"
+                    />
+                  </motion.div>
                 </div>
 
                 {['AI Bots', 'Microservices', 'Kinetic UI'].map((sticker, idx) => (
