@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Command } from 'cmdk';
 import confetti from 'canvas-confetti';
+import { animate, createTimeline, stagger } from 'animejs';
 import {
   ArrowUpRight,
   AudioLines,
@@ -160,6 +161,7 @@ export function PortfolioApp() {
   const [submitted, setSubmitted] = useState(false);
   const dragBoundary = useRef<HTMLDivElement | null>(null);
   const heroRef = useRef<HTMLElement | null>(null);
+  const tunnelRef = useRef<HTMLDivElement | null>(null);
 
   const sections = useMemo(
     () => [
@@ -200,6 +202,8 @@ export function PortfolioApp() {
     offset: ['start start', 'end end'],
   });
 
+  const { scrollYProgress: pageProgress } = useScroll();
+
   const heroSceneScale = useTransform(heroProgress, [0, 1], [1, 1.22]);
   const heroSceneY = useTransform(heroProgress, [0, 1], [0, -150]);
   const heroContentScale = useTransform(heroProgress, [0, 1], [1, 0.9]);
@@ -208,6 +212,86 @@ export function PortfolioApp() {
   const avatarPanelRotate = useTransform(heroProgress, [0, 1], [0, -5]);
   const portalScale = useTransform(heroProgress, [0, 1], [0.85, 1.35]);
   const portalOpacity = useTransform(heroProgress, [0, 0.8, 1], [0.45, 0.25, 0.05]);
+  const tunnelScale = useTransform(pageProgress, [0, 1], [1, 1.35]);
+  const tunnelRotate = useTransform(pageProgress, [0, 1], [0, 4]);
+  const tunnelY = useTransform(pageProgress, [0, 1], [0, -280]);
+
+  useEffect(() => {
+    const heroEnter = createTimeline({ defaults: { ease: 'outExpo', duration: 900 } });
+
+    heroEnter
+      .add('.hero-badge', {
+        opacity: [0, 1],
+        y: [32, 0],
+        delay: stagger(80),
+      })
+      .add(
+        '.hero-word',
+        {
+          opacity: [0, 1],
+          y: [70, 0],
+          rotate: [2, 0],
+          delay: stagger(95),
+        },
+        '-=540'
+      )
+      .add(
+        '.hero-cta',
+        {
+          opacity: [0, 1],
+          scale: [0.82, 1],
+          y: [16, 0],
+          delay: stagger(120),
+        },
+        '-=460'
+      );
+
+    const portalPulse = animate('.portal-ring', {
+      scale: [0.84, 1.22],
+      opacity: [0.45, 0.1],
+      ease: 'inOutSine',
+      delay: stagger(160),
+      duration: 2200,
+      loop: true,
+    });
+
+    const orbitMove = animate('.orbiter', {
+      y: [-8, 8],
+      x: [3, -3],
+      ease: 'inOutSine',
+      duration: 2200,
+      direction: 'alternate',
+      delay: stagger(200),
+      loop: true,
+    });
+
+    const revealEls = document.querySelectorAll<HTMLElement>('.reveal-block');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          animate(entry.target, {
+            opacity: [0, 1],
+            y: [64, 0],
+            scale: [0.95, 1],
+            ease: 'outExpo',
+            duration: 980,
+          });
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.16 }
+    );
+
+    revealEls.forEach((el) => observer.observe(el));
+
+    return () => {
+      heroEnter.pause();
+      portalPulse.pause();
+      orbitMove.pause();
+      observer.disconnect();
+    };
+  }, []);
 
   const playClick = () => soundOn && webAudio.playClickTone();
   const playHover = () => soundOn && webAudio.playHoverTone();
@@ -234,6 +318,28 @@ export function PortfolioApp() {
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--fg)] selection:bg-[#CCFF00] selection:text-black">
+      <motion.div
+        ref={tunnelRef}
+        aria-hidden
+        className="tunnel-viewport"
+        style={{ scale: tunnelScale, rotate: tunnelRotate, y: tunnelY }}
+      >
+        <div className="tunnel-depth">
+          {Array.from({ length: 14 }).map((_, idx) => (
+            <div
+              key={`ring-${idx}`}
+              className="tunnel-ring"
+              style={{
+                transform: `translate(-50%, -50%) translateZ(${idx * -180}px) scale(${1 + idx * 0.2})`,
+                opacity: Math.max(0.06, 0.35 - idx * 0.022),
+              }}
+            />
+          ))}
+          <div className="tunnel-rail left" />
+          <div className="tunnel-rail right" />
+        </div>
+      </motion.div>
+
       <div className="pointer-events-none fixed inset-0 z-0 opacity-30 [background-image:radial-gradient(circle_at_1px_1px,var(--grid)_1px,transparent_0)] [background-size:26px_26px]" />
 
       <header className="sticky top-0 z-40 border-b-2 border-[var(--line)] bg-[color:var(--bg)/0.84] backdrop-blur-md">
@@ -296,22 +402,22 @@ export function PortfolioApp() {
           </motion.div>
 
           <div className="sticky top-20 flex min-h-[calc(100vh-6rem)] items-center">
-            <motion.div style={{ scale: heroContentScale, y: heroContentY }} className="grid w-full gap-6 md:grid-cols-2 md:gap-8">
+            <motion.div style={{ scale: heroContentScale, y: heroContentY }} className="grid w-full gap-6 md:grid-cols-2 md:gap-8 tunnel-content-layer">
               <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
                 <div className="mb-4 flex flex-wrap gap-2">
                   {['Available for Q4/2026 Projects', 'Founder @ Trinetra', 'AI + Full-Stack', 'Gorakhpur, UP, India'].map((pill) => (
-                    <span key={pill} className="neo-pill text-xs">
+                    <span key={pill} className="neo-pill hero-badge text-xs">
                       {pill}
                     </span>
                   ))}
                 </div>
 
                 <h1 className="text-balance text-4xl font-black leading-[0.98] tracking-tight md:text-6xl xl:text-7xl">
-                  Satwik Pal
-                  <span className="block bg-gradient-to-r from-[var(--accent-lime)] to-[#f2ff9f] bg-clip-text text-transparent">
+                  <span className="hero-word block">Satwik Pal</span>
+                  <span className="hero-word block bg-gradient-to-r from-[var(--accent-lime)] to-[#f2ff9f] bg-clip-text text-transparent">
                     Creative Technologist
                   </span>
-                  <span className="block bg-gradient-to-r from-[var(--accent-cyan)] to-[#7ef7ff] bg-clip-text text-transparent">
+                  <span className="hero-word block bg-gradient-to-r from-[var(--accent-cyan)] to-[#7ef7ff] bg-clip-text text-transparent">
                     &amp; Full Stack Developer | AI Automation Engineer
                   </span>
                 </h1>
@@ -322,10 +428,10 @@ export function PortfolioApp() {
                 </p>
 
                 <div className="mt-6 flex flex-wrap gap-3">
-                  <NeoButton onClick={() => scrollTo('projects')} className="bg-[var(--accent-lime)] text-black">
+                  <NeoButton onClick={() => scrollTo('projects')} className="hero-cta bg-[var(--accent-lime)] text-black">
                     Explore Projects 🎯
                   </NeoButton>
-                  <NeoButton onClick={() => scrollTo('contact')} className="bg-[var(--accent-pink)] text-black">
+                  <NeoButton onClick={() => scrollTo('contact')} className="hero-cta bg-[var(--accent-pink)] text-black">
                     Book Consultation ☕
                   </NeoButton>
                 </div>
@@ -356,6 +462,8 @@ export function PortfolioApp() {
                   style={{ scale: portalScale, opacity: portalOpacity }}
                 />
 
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_55%_40%,rgba(0,240,255,0.2),transparent_52%),radial-gradient(circle_at_50%_70%,rgba(139,92,246,0.28),transparent_46%)]" />
+
                 <motion.div
                   className="absolute left-5 top-5 rounded-full border-2 border-[var(--line)] bg-[var(--accent-cyan)] px-3 py-1 text-xs font-bold text-black"
                   animate={{ y: [0, -6, 0] }}
@@ -372,23 +480,20 @@ export function PortfolioApp() {
                 </motion.div>
 
                 {[0, 1, 2, 3, 4].map((ring) => (
-                  <motion.div
+                  <div
                     key={ring}
-                    className="pointer-events-none absolute left-1/2 top-1/2 rounded-full border border-white/20"
+                    className="portal-ring pointer-events-none absolute left-1/2 top-1/2 rounded-full border border-white/20"
                     style={{
                       width: 80 + ring * 58,
                       height: 80 + ring * 58,
-                      translateX: '-50%',
-                      translateY: '-50%',
+                      transform: 'translate(-50%, -50%)',
                     }}
-                    animate={{ scale: [1, 1.06, 1], opacity: [0.4, 0.15, 0.4] }}
-                    transition={{ duration: 2.4 + ring * 0.35, repeat: Number.POSITIVE_INFINITY }}
                   />
                 ))}
 
                 <div className="absolute inset-x-0 bottom-0 flex justify-center">
-                  <div className="relative mb-4 h-52 w-52 rounded-full border-2 border-[var(--line)] bg-[radial-gradient(circle_at_30%_25%,#fff,transparent_40%),linear-gradient(160deg,#8B5CF6,#00F0FF)] shadow-[8px_8px_0px_var(--line)]">
-                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">🧑‍💻</span>
+                  <div className="relative mb-4 h-52 w-52 rounded-[40%] border-2 border-[var(--line)] bg-[radial-gradient(circle_at_30%_25%,#fff,transparent_40%),linear-gradient(160deg,#8B5CF6,#00F0FF)] shadow-[8px_8px_0px_var(--line)]">
+                    <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl">🤖</span>
                   </div>
                 </div>
 
@@ -399,13 +504,11 @@ export function PortfolioApp() {
                     dragConstraints={dragBoundary}
                     whileDrag={{ scale: 1.08 }}
                     className={cn(
-                      'absolute cursor-grab rounded-2xl border-2 border-[var(--line)] bg-[var(--accent-orange)] px-3 py-1 text-xs font-black text-black shadow-[4px_4px_0px_var(--line)] active:shadow-[2px_2px_0px_var(--line)]',
+                      'orbiter absolute cursor-grab rounded-2xl border-2 border-[var(--line)] bg-[var(--accent-orange)] px-3 py-1 text-xs font-black text-black shadow-[4px_4px_0px_var(--line)] active:shadow-[2px_2px_0px_var(--line)]',
                       idx === 0 && 'left-8 top-28',
                       idx === 1 && 'right-8 top-40',
                       idx === 2 && 'left-16 bottom-10'
                     )}
-                    animate={{ y: [0, idx % 2 === 0 ? -8 : 8, 0] }}
-                    transition={{ duration: 3 + idx, repeat: Number.POSITIVE_INFINITY }}
                   >
                     {sticker}
                   </motion.div>
@@ -415,7 +518,7 @@ export function PortfolioApp() {
           </div>
         </section>
 
-        <section className="neo-card mb-12 overflow-hidden px-0 py-3 md:mb-16" aria-label="Tech ticker">
+        <section className="neo-card reveal-block mb-12 overflow-hidden px-0 py-3 md:mb-16" aria-label="Tech ticker">
           <div className="marquee-track">
             {[...marqueeItems, ...marqueeItems].map((item, i) => (
               <span key={`${item}-${i}`} className="mx-3 text-sm font-black tracking-wide text-[var(--accent-lime)]">
@@ -426,7 +529,7 @@ export function PortfolioApp() {
           </div>
         </section>
 
-        <section id="mindset" className="pb-12 md:pb-16">
+        <section id="mindset" className="reveal-block pb-12 md:pb-16">
           <div className="mb-4 flex items-center gap-2">
             <Bot size={18} />
             <h2 className="text-2xl font-black md:text-3xl">Mindset & Story</h2>
@@ -487,7 +590,7 @@ export function PortfolioApp() {
           </div>
         </section>
 
-        <section id="projects" className="pb-12 md:pb-16">
+        <section id="projects" className="reveal-block pb-12 md:pb-16">
           <div className="mb-4 flex items-center gap-2">
             <Rocket size={18} />
             <h2 className="text-2xl font-black md:text-3xl">Featured Projects Bento Grid</h2>
@@ -554,7 +657,7 @@ export function PortfolioApp() {
           </div>
         </section>
 
-        <section id="process" className="pb-12 md:pb-16">
+        <section id="process" className="reveal-block pb-12 md:pb-16">
           <div className="mb-4 flex items-center gap-2">
             <AudioLines size={18} />
             <h2 className="text-2xl font-black md:text-3xl">Engineering Process</h2>
@@ -574,7 +677,7 @@ export function PortfolioApp() {
           </div>
         </section>
 
-        <section id="contact" className="pb-8">
+        <section id="contact" className="reveal-block pb-8">
           <div className="mb-4 flex items-center gap-2">
             <CalendarDays size={18} />
             <h2 className="text-2xl font-black md:text-3xl">Interactive Contact & Let&apos;s Build</h2>
