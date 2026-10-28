@@ -21,7 +21,7 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
-import { motion, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'motion/react';
+import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'motion/react';
 import { cn } from '@/lib/cn';
 import { webAudio } from '@/utils/WebAudioEngine';
 
@@ -98,12 +98,6 @@ const marqueeItems = [
   'GRAPH ALGORITHMS',
 ];
 
-const heroVariants = [
-  { label: 'Builder Mode', src: '/anime-tech-hero.svg' },
-  { label: 'Hacker Mode', src: '/anime-tech-hero-hacker.svg' },
-  { label: 'Neon Mode', src: '/anime-tech-hero-neon.svg' },
-] as const;
-
 function TiltCard({ className, children }: { className?: string; children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const x = useMotionValue(0);
@@ -166,8 +160,6 @@ export function PortfolioApp() {
   const [soundOn, setSoundOn] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
-  const [heroVariant, setHeroVariant] = useState(0);
-  const heroVariantRef = useRef(0);
   const dragBoundary = useRef<HTMLDivElement | null>(null);
   const heroRef = useRef<HTMLElement | null>(null);
   const tunnelRef = useRef<HTMLDivElement | null>(null);
@@ -224,21 +216,6 @@ export function PortfolioApp() {
   const tunnelScale = useTransform(pageProgress, [0, 1], [1, 1.35]);
   const tunnelRotate = useTransform(pageProgress, [0, 1], [0, 4]);
   const tunnelY = useTransform(pageProgress, [0, 1], [0, -280]);
-
-  useMotionValueEvent(heroProgress, 'change', (latest) => {
-    let next = 0;
-    if (latest < 0.33) {
-      next = 0;
-    } else if (latest < 0.66) {
-      next = 1;
-    } else {
-      next = 2;
-    }
-    if (heroVariantRef.current !== next) {
-      heroVariantRef.current = next;
-      setHeroVariant(next);
-    }
-  });
 
   useEffect(() => {
     const heroEnter = createTimeline({ defaults: { ease: 'outExpo', duration: 900 } });
@@ -475,7 +452,7 @@ export function PortfolioApp() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={spring}
                 style={{ scale: avatarPanelScale, rotate: avatarPanelRotate }}
-                className="neo-card relative min-h-[360px] overflow-hidden bg-[linear-gradient(145deg,var(--card),var(--card-2))]"
+                className="neo-card relative min-h-[380px] md:min-h-[480px] overflow-hidden bg-[linear-gradient(145deg,var(--card),var(--card-2))] flex flex-col items-center justify-center p-4 md:p-6"
               >
                 <motion.div
                   className="pointer-events-none absolute inset-0 rounded-[1.1rem] border-2 border-[var(--accent-cyan)]/40"
@@ -489,15 +466,15 @@ export function PortfolioApp() {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_55%_40%,rgba(0,240,255,0.2),transparent_52%),radial-gradient(circle_at_50%_70%,rgba(139,92,246,0.28),transparent_46%)]" />
 
                 <motion.div
-                  className="absolute left-5 top-5 rounded-full border-2 border-[var(--line)] bg-[var(--accent-cyan)] px-3 py-1 text-xs font-bold text-black"
+                  className="absolute left-4 top-4 z-20 rounded-full border-2 border-[var(--line)] bg-[var(--accent-cyan)] px-3 py-1 text-xs font-bold text-black shadow-[3px_3px_0px_var(--line)]"
                   animate={{ y: [0, -6, 0] }}
                   transition={{ duration: 3.2, repeat: Number.POSITIVE_INFINITY }}
                 >
                   Hey, I&apos;m Satwik! 👾
                 </motion.div>
                 <motion.div
-                  className="absolute right-5 top-16 rounded-full border-2 border-[var(--line)] bg-[var(--accent-pink)] px-3 py-1 text-xs font-bold text-black"
-                  animate={{ y: [0, 8, 0] }}
+                  className="absolute right-4 top-4 z-20 rounded-full border-2 border-[var(--line)] bg-[var(--accent-pink)] px-3 py-1 text-xs font-bold text-black shadow-[3px_3px_0px_var(--line)]"
+                  animate={{ y: [0, 6, 0] }}
                   transition={{ duration: 3.8, repeat: Number.POSITIVE_INFINITY }}
                 >
                   Scroll down to explore 🚀
@@ -515,27 +492,36 @@ export function PortfolioApp() {
                   />
                 ))}
 
-                <div className="absolute inset-x-0 bottom-0 flex justify-center">
+                {/* Main Hero Developer Picture */}
+                <div className="relative z-10 w-full max-w-[500px] my-auto pt-6 pb-2">
                   <motion.div
-                    className="relative mb-2 h-[360px] w-[300px] md:h-[430px] md:w-[350px]"
-                    animate={{ y: [0, -8, 0] }}
-                    transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
+                    className="group relative w-full aspect-[1024/682] rounded-2xl overflow-hidden border-2 border-[var(--line)] shadow-[8px_8px_0px_var(--line)] bg-[#050608]"
+                    animate={{ y: [0, -6, 0] }}
+                    transition={{ duration: 3.5, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
                   >
-                    <motion.span
-                      key={heroVariants[heroVariant].label}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="absolute -top-4 left-1/2 z-20 -translate-x-1/2 rounded-full border-2 border-[var(--line)] bg-[var(--accent-lime)] px-3 py-1 text-[11px] font-black text-black shadow-[4px_4px_0px_var(--line)]"
-                    >
-                      {heroVariants[heroVariant].label}
-                    </motion.span>
                     <Image
-                      src={heroVariants[heroVariant].src}
-                      alt="Anime style tech character"
+                      src="/hero-avatar.jpg"
+                      alt="Satwik Pal — Full Stack Developer & AI Automation Engineer"
                       fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       priority
-                      className="object-contain drop-shadow-[12px_14px_0px_rgba(16,16,16,0.85)] transition-all duration-500"
+                      className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                     />
+
+                    {/* Gradient overlay & inner border */}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
+                    <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10" />
+
+                    {/* Interactive HUD labels on bottom bar */}
+                    <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between text-[10px] md:text-xs font-mono font-bold">
+                      <span className="flex items-center gap-1.5 rounded-md bg-black/85 backdrop-blur-md px-2.5 py-1 text-[var(--accent-lime)] border border-[var(--accent-lime)]/30">
+                        <span className="h-2 w-2 rounded-full bg-[var(--accent-lime)] animate-ping" />
+                        SYS.ONLINE // ACTIVE
+                      </span>
+                      <span className="rounded-md bg-black/85 backdrop-blur-md px-2.5 py-1 text-[var(--accent-cyan)] border border-[var(--accent-cyan)]/30">
+                        &lt;/&gt; SATWIK PAL
+                      </span>
+                    </div>
                   </motion.div>
                 </div>
 
@@ -546,10 +532,10 @@ export function PortfolioApp() {
                     dragConstraints={dragBoundary}
                     whileDrag={{ scale: 1.08 }}
                     className={cn(
-                      'orbiter absolute cursor-grab rounded-2xl border-2 border-[var(--line)] bg-[var(--accent-orange)] px-3 py-1 text-xs font-black text-black shadow-[4px_4px_0px_var(--line)] active:shadow-[2px_2px_0px_var(--line)]',
-                      idx === 0 && 'left-8 top-28',
-                      idx === 1 && 'right-8 top-40',
-                      idx === 2 && 'left-16 bottom-10'
+                      'orbiter absolute z-20 cursor-grab rounded-2xl border-2 border-[var(--line)] bg-[var(--accent-orange)] px-3 py-1 text-xs font-black text-black shadow-[4px_4px_0px_var(--line)] active:shadow-[2px_2px_0px_var(--line)]',
+                      idx === 0 && 'left-4 bottom-3 md:left-6 md:bottom-4',
+                      idx === 1 && 'right-4 bottom-3 md:right-6 md:bottom-4',
+                      idx === 2 && 'left-1/2 -translate-x-1/2 -top-2 md:-top-3'
                     )}
                   >
                     {sticker}
